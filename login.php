@@ -1,28 +1,35 @@
 <?php 
-    //include config file
-    include 'config.php';
+// Include config file
+include 'config.php';
+session_start(); // Start the session
 
- 
- if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $user = $_POST['username'];
     $pass = $_POST['password'];
 
-    // Retrieve the hashed password from the database
-    $stmt = $conn->prepare("SELECT password FROM users WHERE username = ?");
+    // Retrieve the hashed password and role from the database
+    $stmt = $conn->prepare("SELECT password, role FROM users WHERE username = ?");
     $stmt->bind_param("s", $user);
     $stmt->execute();
     $stmt->store_result();
 
     if ($stmt->num_rows > 0) {
-        $stmt->bind_result($hashedPassword);
+        $stmt->bind_result($hashedPassword, $role);
         $stmt->fetch();
 
         // Verify the password
         if (password_verify($pass, $hashedPassword)) {
-            header("Location: index.php");
-            // Start session and store user information
-            session_start();
+            // Store user information and role in the session
             $_SESSION['username'] = $user;
+            $_SESSION['role'] = $role;
+
+            // Redirect based on the role
+            if ($role == 'admin') {
+                header("Location: index.php");
+            } elseif ($role == 'editor') {
+                header("Location: index.php");
+            }
+            exit(); // Ensure no further code is executed
         } else {
             echo "Invalid username or password.";
         }
