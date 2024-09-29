@@ -1,17 +1,18 @@
-<?php 
+<?php
 include "config.php";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Get the username and password from the form
+    // Get the username, password, and role from the form
     $username = $_POST['username'];
     $password = $_POST['password'];
+    $role = $_POST['role'];
 
     // Hash the password for security
     $hashed_password = password_hash($password, PASSWORD_BCRYPT);
 
     // Prepare and bind
-    $stmt = $conn->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
-    $stmt->bind_param("ss", $username, $hashed_password);
+    $stmt = $conn->prepare("INSERT INTO users (username, password, role) VALUES (?, ?, ?)");
+    $stmt->bind_param("sss", $username, $hashed_password, $role);
 
     // Execute the query
     if ($stmt->execute()) {
@@ -86,6 +87,14 @@ $conn->close();
                     <div class="mb-3 text-start">
                         <label for="password" class="form-label">Password:</label>
                         <input type="password" class="form-control form-control-custom" id="password" name="password" placeholder="Enter Your Password" required>
+                    </div>
+                    <div class="mb-3 text-start">
+                        <label for="role" class="form-label">Role:</label>
+                        <select class="form-control form-control-custom" id="role" name="role" required>
+                            <option value=""disabled selected>Select your role</option>
+                            <option value="admin">Admin</option>
+                            <option value="editor">Editor</option>
+                        </select>
                     </div>
                     <button class="btn btn-custom w-100 py-2 text-white" type="submit">Log In</button>
                     <p class="mt-3">Already have an account? <a class="text-custom" href="login.php">Login Here</a></p>
